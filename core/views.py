@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login,logout
 from .forms import SignUpForm
 from django.contrib.auth.views import LoginView
 
@@ -28,4 +28,8 @@ class CustomLoginView(LoginView):
     def form_invalid(self, form):
         messages.error(self.request, 'نام کاربری یا رمز عبور اشتباه است.')
         return super().form_invalid(form)
-    
+
+def custom_logout(request):
+    logout(request)
+    messages.success(request, 'با موفقیت خارج شدید.')
+    return redirect('core:home')
