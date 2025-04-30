@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login
 from .forms import SignUpForm
+from django.contrib.auth.views import LoginView
 
 # Create your views here.
 def home(request):
@@ -20,3 +21,11 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'core/signup.html', {'form': form})
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'نام کاربری یا رمز عبور اشتباه است.')
+        return super().form_invalid(form)
+    

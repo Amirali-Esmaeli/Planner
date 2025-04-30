@@ -1,10 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>ورود</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">ورود</button>
-</form>
-<a href="{% url 'password_reset' %}">فراموشی رمز عبور</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h2 class="text-center mb-4">ورود</h2>
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert {{message.tags}} alert-dismissible fade show" role="alert">
+                    {{message}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">نام کاربری</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">رمز عبور</label>
+                        <input type="text" name="password" class="form-control" required>
+                    </div>
+                    {% if form.errors %}
+                    <div class="text-danger">نام کاربری یا رمز عبور اشتباه است</div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-100">ورود</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="{% url 'password_reset' %}" class="text-primary">فراموشی رمز عبور؟</a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'core:signup' %}" class="text-primary">حساب ندارید؟ ثبت‌نام</a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">بازگشت به داشبورد</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
