@@ -33,6 +33,6 @@ class GoalForm(forms.ModelForm):
             'categories': 'دسته‌بندی‌ها',
         }
 
-        def __init__(self, user, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.fields['categories'].queryset = Category.objects.filter(user=user)
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['categories'].queryset = Category.objects.filter(user=user)

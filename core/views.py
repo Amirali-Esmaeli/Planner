@@ -1,12 +1,32 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login,logout
-from .forms import SignUpForm
+from .forms import SignUpForm, GoalForm
 from django.contrib.auth.views import LoginView
+from .models import Goal, Habit, Task
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def home(request):
-    return render(request, 'core/home.html')
+    if request.user.is_authenticated:
+        goals = Goal.objects.filter(user=request.user).order_by('-start_date')[:5]
+        habits = Habit.objects.filter(user=request.user, created_at__date=timezone.now().date())
+        tasks = Task.objects.filter(user=request.user, completed=False).order_by('due_date')[:5]
+        chart_date={
+            'labels':[goal.title for goal in goals],
+            'date':[goal.progress for goal in goals],
+        }
+        context={
+            'goals':goals,
+            'habits':habits,
+            'tasks':tasks,
+            'chart_date':chart_date
+        }
+        return render(request, 'core/home.html', context)
+    else:
+        messages.info(request, 'برای شروع برنامه‌ریزی، وارد شوید یا ثبت‌نام کنید')
+        return render(request, 'core/home.html')
 
 def signup(request):
     if request.method == 'POST':
@@ -33,3 +53,35 @@ def custom_logout(request):
     logout(request)
     messages.success(request, 'با موفقیت خارج شدید.')
     return redirect('core:home')
+
+@login_required
+def goal_create(request):
+    if request.method == 'POST':
+        form = GoalForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            goal = form.save(commit=False)
+            goal.user = request.user
+            goal.save()
+            form.save_m2m()
+            messages.success(request, 'هدف با موفقیت ایجاد شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = GoalForm(user=request.user)
+    return render(request, 'core/goal_form.html', {'form': form, 'title': 'ایجاد هدف'})
+
+@login_required
+def goal_edit(request, goal_id):
+    goal = get_object_or_404(Goal, id=goal_id, user=request.user)
+    if request.method == 'POST':
+        form = GoalForm(user=request.user, data=request.POST, instance=goal)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'هدف با موفقیت ویرایش شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = GoalForm(user=request.user, instance=goal)
+    return render(request, 'core/goal_form.html', {'form': form, 'title': 'ویرایش هدف'})
