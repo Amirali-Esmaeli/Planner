@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login,logout
-from .forms import SignUpForm, GoalForm
+from .forms import SignUpForm, GoalForm, HabitForm, TaskForm
 from django.contrib.auth.views import LoginView
 from .models import Goal, Habit, Task
 from django.utils import timezone
@@ -85,3 +85,36 @@ def goal_edit(request, goal_id):
     else:
         form = GoalForm(user=request.user, instance=goal)
     return render(request, 'core/goal_form.html', {'form': form, 'title': 'ویرایش هدف'})
+
+@login_required
+def habit_create(request):
+    if request.method == "POST":
+        form = HabitForm(data=request.POST)
+        if form.is_valid():
+            habit = form.save(commit=False)
+            habit.user = request.user
+            habit.save()
+            messages.success(request, 'عادت با موفقیت ایجاد شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = HabitForm()
+    return render(request, 'core/habit_form.html', {'form': form, 'title': 'ایجاد عادت'})
+
+@login_required
+def Task_create(request):
+    if request.method == "POST":
+        form = TaskForm(data=request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.save()
+            form.save_m2m()
+            messages.success(request, 'وظیفه با موفقیت ایجاد شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = TaskForm(user=request.user)
+    return render(request, 'core/task_form.html', {'form': form, 'title': 'ایجاد وظیفه'})
