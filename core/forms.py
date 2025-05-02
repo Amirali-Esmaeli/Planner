@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Goal, Category
+from .models import Goal, Category, Habit, Task
+from django.utils import timezone
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label='ایمیل',widget=forms.EmailInput(attrs={'class':'form-control'}))
@@ -36,3 +37,44 @@ class GoalForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['categories'].queryset = Category.objects.filter(user=user)
+
+class HabitForm(forms.ModelForm):
+    class Meta:
+        model = Habit
+        fields = ['title', 'frequency', 'done']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان عادت'}),
+            'frequency': forms.Select(attrs={'class': 'form-control'}),
+            'done': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'title': 'عنوان',
+            'frequency': 'فرکانس',
+            'done': 'انجام شده',
+        }
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['title', 'priority', 'due_date', 'categories']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان وظیفه'}),
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'categories': forms.CheckboxSelectMultiple(),
+        }
+        labels = {
+            'title': 'عنوان',
+            'priority': 'اولویت',
+            'due_date': 'تاریخ سررسید',
+            'categories': 'دسته‌بندی‌ها',
+        }
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['categories'].queryset = Category.objects.filter(user=user)
+
+    def clean_due_date(self):
+        due_date = self.cleaned_data['due_date']
+        if due_date < timezone.now().date():
+            raise forms.ValidationError('تاریخ سررسید نمی‌تواند در گذشته باشد')
+        return due_date
