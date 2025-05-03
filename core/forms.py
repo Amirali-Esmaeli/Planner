@@ -49,7 +49,7 @@ class HabitForm(forms.ModelForm):
         }
         labels = {
             'title': 'عنوان',
-            'frequency': 'فرکانس',
+            'frequency': 'تکرار',
             'done': 'انجام شده',
         }
 
