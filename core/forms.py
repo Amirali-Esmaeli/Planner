@@ -22,7 +22,7 @@ class GoalForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows':4, 'placeholder': 'توضیحات'}),
             'progress': forms.NumberInput(attrs={'class': 'form-control', 'min':0, 'max':100}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'class': 'form-control', 'typr': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'categories': forms.CheckboxSelectMultiple(),
         }  
         labels = {
