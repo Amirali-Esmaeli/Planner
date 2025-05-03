@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% if user.is_authenticated %}
+<div class="container mt-5">
+    <h2 class="mb-4 fade-in">خوش آمدید، {{ user.username }} <i class="fas fa-user-circle"></i></h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 fade-in">
+                <h3 class="mb-3"><i class="fas fa-bullseye"></i> هدف های شما</h3>
+                {% if goals %}
+                <ul class="list-group">
+                    {% for goal in goals %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{goal.title}} - %{{goal.progress}}
+                        <a href="{% url 'core:goal_edit' goal.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                    </li> 
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'core:goal_create' %}" class="btn btn-primary mt-3"><i class="fas fa-plus"></i> افزودن هدف</a>
+                {% else %}
+                <p>هدفی ثبت نشده است</p>
+                <a href="{% url 'core:goal_create' %}" class="btn btn-primary mt-3"><i class="fas fa-plus"></i> افزودن هدف</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 fade-in">
+                <h3 class="mb-3"><i class="fas fa-check-circle">عادت های امروز</i></h3>
+                {% if habits %}
+                <ul class="list-group">
+                    {% for habit in habits %}
+                    <li class="list-group-item">
+                        <input type="checkbox">
+                        {{ habit.title }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>عادتی برای امروز ثبت نشده است</p>
+                {% endif %}
+                <a href="{% url 'core:habit_create' %}" class="btn btn-primary mt-3"><i class="fas fa-plus"></i> افزودن عادت</a>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 fade-in">
+                <h3 class="mb-3"><i class="fas fa-tasks"></i> وظایف نزدیک</h3>
+                <div class="mb-3">
+                    <select id="priority-filter" class="form-select">
+                        <option value="all">همه اولویت ها</option>
+                        <option value="high">زیاد</option>
+                        <option value="medium">متوسط</option>
+                        <option value="low">کم</option>
+                    </select>
+                </div>
+                {% if tasks %}
+                <ul class="list-group" id="task-list">
+                    {% for task in tasks %}
+                    <li class="list-group-item task-item" data-priority="{{ task.priority }}" dir="rtl">
+                        {{ task.title }} - مهلت: {{ task.due_date|date:"Y/m/d" }}
+                        <span class="badge {% if task.priority == 'high' %}bd-danger {% elif task.priority == 'medium' %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ task.get_priority_display }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>وظیفه‌ای ثبت نشده است</p>
+                {% endif %}
+                <a href="{% url 'core:task_create' %}" class="btn btn-primary mt-3"><i class="fas fa-plus"></i> افزودن وظیفه</a>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6 mx-auto">
+            <div class="card p-4 fade-in">
+                <h3 class="mb-3"><i class="fas fa-chart-bar"></i> پیشرفت هدف‌ها</h3>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx,{
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels|safe }},
+            datasets: [{
+                label: 'پیشرفت (%)',
+                data: {{ chart_data.data|safe }},
+                backgroundColor: '#007bff',
+                borderColor: '#0056b3',
+                borderWidth: 1
+            }]
+        },
+        options:{
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    document.getElementById('priority-filter').addEventListener('change',function(){
+        const priority = this.value;
+        const tasks = document.querySelectorAll('.task-item');
+        tasks.forEach(task => {
+            if (priority === 'all' || task.dataset.priority === priority) {
+                task.style.display = '';
+            } else {
+                task.style.display = 'none';
+            }
+        })
+    })
+</script>
+{% else %}
+<div class="container mt-5 text-center">
+    <div class="card p-5 fade-in">
+        <img src="{% static 'images/Hourly-Weekly-Planner-Printable-Graphics-24703667.png' %}" alt="پلنر توسعه فردی" class="img-fluid mb-4" style="max-width: 300px;">
+        <h1>به پلنر توسعه فردی خوش آمدید</h1>
+        <p class="lead">هدف‌ها، عادت‌ها، و وظایف روزانه خود را به راحتی مدیریت کنید</p>
+        <div class="mt-4">
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg mx-2"><i class="fas fa-sign-in-alt"></i>ورود</a>
+            <a href="{% url 'core:signup' %}" class="btn btn-outline-primary btn-lg mx-2"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock content %}

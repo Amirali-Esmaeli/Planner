@@ -13,15 +13,15 @@ def home(request):
         goals = Goal.objects.filter(user=request.user).order_by('-start_date')[:5]
         habits = Habit.objects.filter(user=request.user, created_at__date=timezone.now().date())
         tasks = Task.objects.filter(user=request.user, completed=False).order_by('due_date')[:5]
-        chart_date={
+        chart_data={
             'labels':[goal.title for goal in goals],
-            'date':[goal.progress for goal in goals],
+            'data':[goal.progress for goal in goals],
         }
         context={
             'goals':goals,
             'habits':habits,
             'tasks':tasks,
-            'chart_date':chart_date
+            'chart_data':chart_data
         }
         return render(request, 'core/home.html', context)
     else:
@@ -103,7 +103,7 @@ def habit_create(request):
     return render(request, 'core/habit_form.html', {'form': form, 'title': 'ایجاد عادت'})
 
 @login_required
-def Task_create(request):
+def task_create(request):
     if request.method == "POST":
         form = TaskForm(data=request.POST)
         if form.is_valid():
