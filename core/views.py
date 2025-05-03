@@ -105,7 +105,7 @@ def habit_create(request):
 @login_required
 def task_create(request):
     if request.method == "POST":
-        form = TaskForm(data=request.POST)
+        form = TaskForm(user=request.user,data=request.POST)
         if form.is_valid():
             task = form.save(commit=False)
             task.user = request.user
