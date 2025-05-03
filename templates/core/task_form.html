@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card p-4 fade-in">
-                <h2 class="text-center mb-4"><i class="fas fa-check-circle"></i> {{ title }}</h2>
+                <h2 class="text-center mb-4"><i class="fas fa-tasks"></i> {{ title }}</h2>
                 {% if messages %}
                 {% for message in messages %}
                 <div class="alert {{message.tags}}" alert-dismissible fade show role="alert">
@@ -14,18 +14,18 @@
                 </div>
                 {% endfor %}
                 {% endif %}
-                <form method="POST" id="habit-form">
+                <form method="POST" id="task-form">
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-3">
-                    <label class="form-label">
-                        <i class="fas fa-{% if field.name == 'title' %}pen{% elif field.name == 'frequency' %}clock{% else %}check{% endif %}"></i>
-                        {{field.label}}
-                    </label>
-                    {{field}}
-                    {% if field.errors %}
+                        <label class="form-label">
+                            <i class="fas fa-{% if field.name == 'title' %}pen{% elif field.name == 'priority' %}exclamation-circle{% elif field.name == 'due_date' %}calendar{% else %}tags{% endif %}"></i>
+                            {{ field.label }}
+                        </label>
+                        {{field}}
+                        {% if field.errors %}
                         <div class="text-danger">{{ field.errors }}</div>
-                    {% endif %}
+                        {% endif %}
                     </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save"></i> ذخیره</button>
@@ -37,5 +37,5 @@
         </div>
     </div>
 </div>
-<script src="{% static 'js/habit_form.js' %}"></script>
+<script src={static 'js/task_form.js'}></script>
 {% endblock content %}
