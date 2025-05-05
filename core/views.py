@@ -133,4 +133,61 @@ def change_password(request):
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'core/change_password.html', {'form': form})
+
+@login_required
+def habit_edit(request, habit_id):
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+    if request.method == "POST":
+        form = HabitForm(data=request.POST, instance=habit)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'عادت با موفقیت ویرایش شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = HabitForm(instance=habit)
+    return render(request, 'core/habit_form.html', {'form': form, 'title': 'ویرایش عادت'})
+
+@login_required
+def habit_delete(request, habit_id):
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+    if request.method == "POST":
+        habit.delete()
+        messages.success(request, 'عادت با موفقیت حذف شد')
+        return redirect('core:home')
+    return(request, 'core/habit_delete.html', {'habit': habit})
+
+@login_required
+def task_edit(request, task_id):
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    if request.method == "POST":
+        form = TaskForm(user=request.user, data=request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'وظیفه با موفقیت ویرایش شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = TaskForm(user=request.user, instance=task)
+    return render(request, 'core/task_form.html', {'form': form, 'title': 'ویرایش وظیفه'})
+
+@login_required
+def task_delete(request, task_id):
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    if request.method == "POST":
+        task.delete()
+        messages.success(request, 'وظیفه با موفقیت حذف شد')
+        return redirect('core:home')
+    return(request, 'core/task_delete.html', {'task': task})
+
+@login_required
+def goal_delete(request, goal_id):
+    goal = get_object_or_404(Goal, id=goal_id, user=request.user)
+    if request.method == "POST":
+        goal.delete()
+        messages.success(request, 'هدف با موفقیت حذف شد')
+        return redirect('core:home')
+    return(request, 'core/goal_delete.html', {'goal': goal})
     
