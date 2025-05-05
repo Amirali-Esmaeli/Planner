@@ -12,6 +12,12 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
+        
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("این ایمیل قبلاً ثبت شده.")
+        return email
 
 class GoalForm(forms.ModelForm):
     class Meta:
