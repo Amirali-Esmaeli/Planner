@@ -12,4 +12,9 @@ urlpatterns = [
     path('habit/create/', views.habit_create, name='habit_create'),
     path('task/create/', views.task_create, name='task_create'),
     path('change-password/', views.change_password, name='change_password'),
+    path('habit/edit/<int:habit_id>/', views.habit_edit, name='habit_edit'),
+    path('task/edit/<int:task_id>/', views.task_edit, name='task_edit'),
+    path('goal/delete/<int:goal_id>/', views.goal_delete, name='goal_delete'),
+    path('habit/delete/<int:habit_id>/', views.habit_delete, name='habit_delete'),
+    path('task/delete/<int:task_id>/', views.task_delete, name='task_delete'),
 ]
