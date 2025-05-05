@@ -11,4 +11,5 @@ urlpatterns = [
     path('goal/create/', views.goal_create, name='goal_create'),
     path('habit/create/', views.habit_create, name='habit_create'),
     path('task/create/', views.task_create, name='task_create'),
+    path('change-password/', views.change_password, name='change_password'),
 ]

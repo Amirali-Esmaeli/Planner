@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login,logout
+from django.contrib.auth import login,logout,update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignUpForm, GoalForm, HabitForm, TaskForm
 from django.contrib.auth.views import LoginView
 from .models import Goal, Habit, Task
@@ -118,3 +119,18 @@ def task_create(request):
     else:
         form = TaskForm(user=request.user)
     return render(request, 'core/task_form.html', {'form': form, 'title': 'ایجاد وظیفه'})
+
+def change_password(request):
+    if request.method == "POST":
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, 'رمز عبور با موفقیت تغییر کرد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'core/change_password.html', {'form': form})
+    
