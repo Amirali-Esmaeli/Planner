@@ -12,8 +12,13 @@
                 <ul class="list-group">
                     {% for goal in goals %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{goal.title}} - %{{goal.progress}}
-                        <a href="{% url 'core:goal_edit' goal.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                        <div>
+                            {{goal.title}} - %{{goal.progress}}
+                        </div>
+                        <div>
+                            <a href="{% url 'core:goal_edit' goal.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'core:goal_delete' goal.id%}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                        </div>
                     </li> 
                     {% endfor %}
                 </ul>
@@ -30,9 +35,15 @@
                 {% if habits %}
                 <ul class="list-group">
                     {% for habit in habits %}
-                    <li class="list-group-item">
-                        <input type="checkbox">
-                        {{ habit.title }}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="checkbox">
+                            {{ habit.title }}
+                        </div>
+                        <div>
+                            <a href="{% url 'core:habit_edit' habit.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'core:habit_delete' habit.id %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                        </div>             
                     </li>
                     {% endfor %}
                 </ul>
@@ -56,11 +67,17 @@
                 {% if tasks %}
                 <ul class="list-group" id="task-list">
                     {% for task in tasks %}
-                    <li class="list-group-item task-item" data-priority="{{ task.priority }}" dir="rtl">
-                        {{ task.title }} - مهلت: {{ task.due_date|date:"Y/m/d" }}
+                    <li class="list-group-item task-item d-flex justify-content-between align-items-center" data-priority="{{ task.priority }}">
+                        <div>
+                            {{ task.title }} - مهلت: {{ task.due_date|date:"Y/m/d" }}
                         <span class="badge {% if task.priority == 'high' %}bd-danger {% elif task.priority == 'medium' %}bg-warning{% else %}bg-success{% endif %}">
                             {{ task.get_priority_display }}
                         </span>
+                        </div>
+                        <div>
+                            <a href="{% url 'core:task_edit' task.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'core:task_delete' task.id %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                        </div>
                     </li>
                     {% endfor %}
                 </ul>
