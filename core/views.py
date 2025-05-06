@@ -156,7 +156,7 @@ def habit_delete(request, habit_id):
         habit.delete()
         messages.success(request, 'عادت با موفقیت حذف شد')
         return redirect('core:home')
-    return(request, 'core/habit_delete.html', {'habit': habit})
+    return render(request, 'core/habit_delete.html', {'habit': habit})
 
 @login_required
 def task_edit(request, task_id):
@@ -180,7 +180,7 @@ def task_delete(request, task_id):
         task.delete()
         messages.success(request, 'وظیفه با موفقیت حذف شد')
         return redirect('core:home')
-    return(request, 'core/task_delete.html', {'task': task})
+    return render(request, 'core/task_delete.html', {'task': task})
 
 @login_required
 def goal_delete(request, goal_id):
@@ -189,5 +189,5 @@ def goal_delete(request, goal_id):
         goal.delete()
         messages.success(request, 'هدف با موفقیت حذف شد')
         return redirect('core:home')
-    return(request, 'core/goal_delete.html', {'goal': goal})
+    return render(request, 'core/goal_delete.html', {'goal': goal})
     
