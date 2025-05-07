@@ -20,20 +20,18 @@ class GoalAdmin(admin.ModelAdmin):
 
 @admin.register(Habit)
 class HabitAdmin(admin.ModelAdmin):
-    list_display = ('title', 'user', 'frequency', 'done', 'created_at', 'id')
-    list_filter = ('user', 'frequency', 'done', 'created_at')
+    list_display = ('title', 'user', 'frequency', 'created_at', 'id')
+    list_filter = ('user', 'frequency', 'created_at')
     search_fields = ('title',)
     ordering = ('-created_at',)
-    verbose_name = 'عادت'
-    verbose_name_plural = 'عادت ها'
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('title', 'user', 'priority', 'due_date', 'completed', 'id')
-    list_filter = ('user', 'priority', 'completed', 'due_date')
+    list_display = ('title', 'user', 'priority', 'due_date', 'goal', 'status', 'completed_at', 'id')
+    list_filter = ('user', 'priority', 'status', 'due_date')
     search_fields = ('title',)
-    ordering = ('due_date',)
-    filter_horizontal = ('categories',)
+    ordering = ('status', 'completed_at')
+    
     
 
 

@@ -62,25 +62,39 @@ class HabitForm(forms.ModelForm):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['title', 'priority', 'due_date', 'categories']
+        fields = ['title', 'priority', 'due_date', 'goal', 'status']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان وظیفه'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'categories': forms.CheckboxSelectMultiple(),
+            'goal': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
             'title': 'عنوان',
             'priority': 'اولویت',
             'due_date': 'تاریخ سررسید',
-            'categories': 'دسته‌بندی‌ها',
+            'goal': 'هدف مرتبط',
+            'status': 'وضعیت',
+            
         }
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['categories'].queryset = Category.objects.filter(user=user)
+        self.fields['goal'].queryset = Goal.objects.filter(user=user)
 
     def clean_due_date(self):
         due_date = self.cleaned_data['due_date']
         if due_date < timezone.now().date():
             raise forms.ValidationError('تاریخ سررسید نمی‌تواند در گذشته باشد')
         return due_date
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'نام دسته‌بندی'}),
+        }
+        labels = {
+            'name': 'نام دسته‌بندی',
+        }
