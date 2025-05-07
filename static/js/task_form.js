@@ -12,5 +12,8 @@ document.getElementById('task-form').addEventListener('submit', function(e){
     }else if (dueDate < today) {
         alert('تاریخ سررسید نمی‌تواند در گذشته باشد');
         e.preventDefault();
+    }else if (!goal) {
+        alert('هدف مرتبط را انتخاب کنید');
+        e.preventDefault();
     }
 });
