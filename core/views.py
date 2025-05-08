@@ -7,6 +7,7 @@ from django.contrib.auth.views import LoginView
 from .models import Goal, Habit, Task, Category
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 # Create your views here.
 def home(request):
@@ -217,3 +218,26 @@ def category_delete(request,category_id):
     category.delete()
     messages.success(request, 'دسته‌بندی با موفقیت حذف شد')
     return redirect('core:home')
+
+@login_required
+def calendar(request):
+    return render(request, 'core/calendar.html')
+
+@login_required
+def calendar_events(request):
+    tasks = Task.objects.filter(user=request.user)
+    habits = Habit.objects.filter(user=request.user)
+    events = []
+    for task in tasks:
+        events.append({
+            'title': task.title,
+            'start': task.due_date.isoformat(),
+            'color': '#dc3545' if task.priority == 'high' else '#ffc107' if task.priority == 'medium' else '#28a745',
+        })
+    for habit in habits:
+        events.append({
+            'title': habit.title,
+            'start': timezone.now().date().isoformat(),
+            'color': '#007bff',
+        })
+    return JsonResponse(events, safe=False)

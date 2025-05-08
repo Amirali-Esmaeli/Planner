@@ -4,6 +4,9 @@
 {% if user.is_authenticated %}
 <div class="container mt-5">
     <h2 class="mb-4 fade-in">خوش آمدید، {{ user.username }} <i class="fas fa-user-circle"></i></h2>
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'core:calendar' %}" class="btn btn-outline-primary"><i class="fas fa-calendar"></i> تقویم</a>
+    </div>
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card p-4 fade-in">

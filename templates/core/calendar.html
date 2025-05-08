@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 fade-in"><i class="fas fa-calendar-alt"></i> تقویم برنامه‌ریزی</h2>
+    <div class="card p-4 fade-in">
+        <div id="calendar"></div>
+    </div>
+</div>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        var calendarE1 = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarE1, {
+            initialView: 'dayGridMonth',
+            events: '{% url 'core:calendar_events' %}',
+            locale: 'fa',
+            direction: 'rtl',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock content %}
