@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login,logout,update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from .forms import SignUpForm, GoalForm, HabitForm, TaskForm
+from .forms import SignUpForm, GoalForm, HabitForm, TaskForm, CategoryForm
 from django.contrib.auth.views import LoginView
-from .models import Goal, Habit, Task
+from .models import Goal, Habit, Task, Category
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
@@ -13,16 +13,21 @@ def home(request):
     if request.user.is_authenticated:
         goals = Goal.objects.filter(user=request.user).order_by('-start_date')[:5]
         habits = Habit.objects.filter(user=request.user, created_at__date=timezone.now().date())
-        tasks = Task.objects.filter(user=request.user, completed=False).order_by('due_date')[:5]
+        tasks = Task.objects.filter(
+            user=request.user,
+            due_date__gte=timezone.now().date(),
+            status='pending').order_by('due_date')[:5]
         chart_data={
             'labels':[goal.title for goal in goals],
             'data':[goal.progress for goal in goals],
         }
+        categories = Category.objects.filter(user=request.user)
         context={
             'goals':goals,
             'habits':habits,
             'tasks':tasks,
-            'chart_data':chart_data
+            'chart_data':chart_data,
+            'categories':categories,
         }
         return render(request, 'core/home.html', context)
     else:
@@ -111,7 +116,6 @@ def task_create(request):
             task = form.save(commit=False)
             task.user = request.user
             task.save()
-            form.save_m2m()
             messages.success(request, 'وظیفه با موفقیت ایجاد شد')
             return redirect('core:home')
         else:
@@ -191,3 +195,25 @@ def goal_delete(request, goal_id):
         return redirect('core:home')
     return render(request, 'core/goal_delete.html', {'goal': goal})
     
+@login_required
+def category_create(request):
+    if request.method == 'POST':
+        form = CategoryForm(data=request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.user = request.user
+            category.save()
+            messages.success(request, 'دسته‌بندی با موفقیت ایجاد شد')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را بررسی کنید')
+    else:
+        form = CategoryForm()
+    return render(request, 'core/category_form.html', {'form': form, 'title': 'ایجاد دسته‌بندی'})
+
+@login_required
+def category_delete(request,category_id):
+    category = get_object_or_404(Category, id=category_id, user=request.user)
+    category.delete()
+    messages.success(request, 'دسته‌بندی با موفقیت حذف شد')
+    return redirect('core:home')
