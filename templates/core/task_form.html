@@ -19,7 +19,7 @@
                     {% for field in form %}
                     <div class="mb-3">
                         <label class="form-label">
-                            <i class="fas fa-{% if field.name == 'title' %}pen{% elif field.name == 'priority' %}exclamation-circle{% elif field.name == 'due_date' %}calendar{% else %}tags{% endif %}"></i>
+                            <i class="fas fa-{% if field.name == 'title' %}pen{% elif field.name == 'priority' %}exclamation-circle{% elif field.name == 'due_date' %}calendar{% elif field.name == 'goal' %}bullseye{% else %}check-circle{% endif %}"></i>
                             {{ field.label }}
                         </label>
                         {{field}}

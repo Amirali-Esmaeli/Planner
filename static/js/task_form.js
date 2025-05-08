@@ -2,6 +2,7 @@ document.getElementById('task-form').addEventListener('submit', function(e){
     const title = document.querySelector('input[name="title"]').value;
     const dueDate = document.querySelector('input[name="due_date"]').value;
     const today = new Date().toISOString().split('T')[0];
+    const goal = document.querySelector('select[name="goal"]').value;
 
     if (!title.trim()) {
         alert('عنوان وظیفه نمی‌تواند خالی باشد');
