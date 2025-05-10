@@ -8,12 +8,29 @@ from .models import Goal, Habit, Task, Category
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from datetime import timedelta
+import jdatetime
 
 # Create your views here.
 def home(request):
     if request.user.is_authenticated:
+        today = timezone.now().date()
         goals = Goal.objects.filter(user=request.user).order_by('-start_date')[:5]
-        habits = Habit.objects.filter(user=request.user, created_at__date=timezone.now().date())
+        habits = Habit.objects.filter(user=request.user)
+        valid_habits = []
+        for habit in habits:
+            created_date = habit.created_at.date()
+            if created_date <= today:
+                if habit.frequency == 'daily':
+                 valid_habits.append(habit)
+                elif habit.frequency == 'weekly':
+                    created_weekday = created_date.weekday()
+                    if today.weekday() == created_weekday:
+                        valid_habits.append(habit)
+                elif habit.frequency == 'monthly':
+                    created_day = created_date.day
+                    if today.day == created_day:
+                        valid_habits.append(habit)
         tasks = Task.objects.filter(
             user=request.user,
             due_date__gte=timezone.now().date(),
@@ -24,11 +41,11 @@ def home(request):
         }
         categories = Category.objects.filter(user=request.user)
         context={
-            'goals':goals,
-            'habits':habits,
-            'tasks':tasks,
-            'chart_data':chart_data,
-            'categories':categories,
+            'goals': goals,
+            'habits': valid_habits,
+            'tasks': tasks,
+            'chart_data': chart_data,
+            'categories': categories,
         }
         return render(request, 'core/home.html', context)
     else:
@@ -225,19 +242,127 @@ def calendar(request):
 
 @login_required
 def calendar_events(request):
-    tasks = Task.objects.filter(user=request.user)
     habits = Habit.objects.filter(user=request.user)
+    tasks = Task.objects.filter(user=request.user)
     events = []
+
     for task in tasks:
         events.append({
             'title': task.title,
-            'start': task.due_date.isoformat(),
-            'color': '#dc3545' if task.priority == 'high' else '#ffc107' if task.priority == 'medium' else '#28a745',
+            'start': task.due_date.strftime('%Y-%m-%d'),
+            'color': '#007bff' if task.status == 'pending' else '#28a745',
+            'extendedProps': {
+                'type': 'task',
+                'goal': task.goal.title,
+                'priority': task.get_priority_display(),
+            }
         })
+
+    end_date = timezone.now().date() + timedelta(days=365)  
     for habit in habits:
-        events.append({
-            'title': habit.title,
-            'start': timezone.now().date().isoformat(),
-            'color': '#007bff',
-        })
+        current_date = habit.created_at.date()
+        while current_date <= end_date:
+            if habit.frequency == 'daily':
+                events.append({
+                    'title': habit.title,
+                    'start': current_date.strftime('%Y-%m-%d'),
+                    'color': '#ffc107',
+                    'extendedProps': {
+                        'type': 'habit',
+                        'frequency': habit.get_frequency_display(),
+                    }
+                })
+                current_date += timedelta(days=1)
+            elif habit.frequency == 'weekly':
+                events.append({
+                    'title': habit.title,
+                    'start': current_date.strftime('%Y-%m-%d'),
+                    'color': '#ffc107',
+                    'extendedProps': {
+                        'type': 'habit',
+                        'frequency': habit.get_frequency_display(),
+                    }
+                })
+                current_date += timedelta(days=7)
+            elif habit.frequency == 'monthly':
+                events.append({
+                    'title': habit.title,
+                    'start': current_date.strftime('%Y-%m-%d'),
+                    'color': '#ffc107',
+                    'extendedProps': {
+                        'type': 'habit',
+                        'frequency': habit.get_frequency_display(),
+                    }
+                })
+                shamsi_date = jdatetime.date.fromgregorian(date=current_date)
+                habit_shamsi_day = jdatetime.date.fromgregorian(date=habit.created_at.date()).day
+                next_shamsi_month = shamsi_date.replace(day=1) + jdatetime.timedelta(days=32)
+                try:
+                    next_shamsi_month = next_shamsi_month.replace(day=habit_shamsi_day)
+                except ValueError:
+                    next_shamsi_month = next_shamsi_month.replace(day=30)
+                current_date = next_shamsi_month.togregorian()
+    
     return JsonResponse(events, safe=False)
+
+@login_required
+def toggle_habit(request, habit_id):
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+    if request.method == 'POST':
+        today = timezone.now().date().strftime('%Y-%m-%d')
+        done_dates = habit.done_dates or []
+        if today not in done_dates:
+            done_dates.append(today)
+            habit.done_dates = done_dates
+            habit.save()
+            return JsonResponse({'status': 'success', 'message': 'عادت امروز انجام شد'})
+        else:
+            done_dates.remove(today)
+            habit.done_dates = done_dates
+            habit.save()
+            return JsonResponse({'status': 'success', 'message': 'عادت امروز لغو شد'})
+    return JsonResponse({'status': 'error', 'message': 'درخواست نامعتبر'}, status=400)
+
+@login_required
+def history(request):
+    today = timezone.now().date()
+    habits = Habit.objects.filter(user=request.user)
+    habit_statuses = []
+
+    for habit in habits:
+        status = 'انجام نشده'
+        created_date = habit.created_at.date()
+        done_dates = habit.done_dates
+
+        if habit.frequency == 'daily':
+            if created_date <= today:
+                if str(today) in done_dates:
+                    status = 'انجام‌شده'
+        elif habit.frequency == 'weekly':
+            week_start = today - timedelta(days=today.weekday())
+            if created_date <= today:
+                week_dates = [str(week_start + timedelta(days=i)) for i in range(7)]
+                if any(date in done_dates for date in week_dates):
+                    status = 'انجام‌شده'
+        elif habit.frequency == 'monthly':
+            month_start = today.replace(day=1)
+            if created_date <= today:
+                month_dates = [str(month_start + timedelta(days=i)) for i in range((today - month_start).days + 1)]
+                if any(date in done_dates for date in month_dates):
+                    status = 'انجام‌شده'
+        habit_statuses.append({'habit': habit, 'status': status})
+    tasks = Task.objects.filter(user=request.user).order_by('due_date')
+    task_statuses = []
+    for task in tasks:
+        if task.status == 'completed':
+            status = 'تکمیل‌شده'
+        elif task.due_date < today and task.status == 'pending':
+            status = 'منقضی‌شده'
+        else:
+            status = 'در حال انجام'
+        task_statuses.append({'task': task, 'status': status})
+    
+    return render(request, 'core/history.html', {
+        'habit_statuses': habit_statuses,
+        'task_statuses': task_statuses,
+    })
