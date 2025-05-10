@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Goal, Category, Habit, Task
 from django.utils import timezone
+import json
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label='ایمیل',widget=forms.EmailInput(attrs={'class':'form-control'}))
@@ -47,16 +48,14 @@ class GoalForm(forms.ModelForm):
 class HabitForm(forms.ModelForm):
     class Meta:
         model = Habit
-        fields = ['title', 'frequency', 'done']
+        fields = ['title', 'frequency']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان عادت'}),
             'frequency': forms.Select(attrs={'class': 'form-control'}),
-            'done': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
             'title': 'عنوان',
             'frequency': 'تکرار',
-            'done': 'انجام شده',
         }
 
 class TaskForm(forms.ModelForm):
