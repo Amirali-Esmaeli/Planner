@@ -1,28 +1,42 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4 fade-in"><i class="fas fa-calendar-alt"></i> تقویم برنامه‌ریزی</h2>
+    <h2 class="mb-4 fade-in"><i class="fas fa-calendar"></i> تقویم</h2>
     <div class="card p-4 fade-in">
         <div id="calendar"></div>
     </div>
+    <div class="text-center mt-3">
+        <a href="{% url 'core:home' %}" class="btn btn-outline-secondary"><i class="fas fa-home"></i> بازگشت به داشبورد</a>
+    </div>
 </div>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function(){
-        var calendarE1 = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarE1, {
-            initialView: 'dayGridMonth',
-            events: '{% url 'core:calendar_events' %}',
-            locale: 'fa',
-            direction: 'rtl',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            }
-        });
-        calendar.render();
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'fa',
+        events: '/calendar/events/',
+        eventClick: function(info) {
+            alert(
+                'عنوان: ' + info.event.title + '\n' +
+                'نوع: ' + info.event.extendedProps.type + '\n' +
+                (info.event.extendedProps.type === 'task' ? 
+                    'هدف: ' + info.event.extendedProps.goal + '\n' +
+                    'اولویت: ' + info.event.extendedProps.priority :
+                    'تکرار: ' + info.event.extendedProps.frequency)
+            );
+        },
+        direction: 'rtl',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        }
     });
+    calendar.render();
+});
 </script>
-{% endblock content %}
+{% endblock %}
