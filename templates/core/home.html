@@ -5,6 +5,7 @@
 <div class="container mt-5">
     <h2 class="mb-4 fade-in">خوش آمدید، {{ user.username }} <i class="fas fa-user-circle"></i></h2>
     <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'core:history' %}" class="btn btn-outline-info"><i class="fas fa-history"></i> مشاهده تاریخچه</a>
         <a href="{% url 'core:calendar' %}" class="btn btn-outline-primary"><i class="fas fa-calendar"></i> تقویم</a>
     </div>
     <div class="row">
@@ -53,7 +54,8 @@
                     {% for habit in habits %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            <input type="checkbox" {% if habit.done %}checked{% endif %} disabled>
+                            <input type="checkbox" class="habit-checkbox" data-habit-id="{{ habit.id }}"
+                            {% if today_str in habit.done_dates %}checked{% endif %}>
                             {{ habit.title }}
                         </div>
                         <div>
@@ -150,6 +152,47 @@ document.getElementById('priority-filter').addEventListener('change', function()
             task.classList.add('d-none');
         }
     })
+});
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+document.querySelectorAll('.habit-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const habitId = this.getAttribute('data-habit-id');
+        fetch(`/habit/toggle/${habitId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+            } else {
+                alert(data.message);
+                this.checked = !this.checked; 
+            }
+        })
+        .catch(error => {
+            console.error('Error toggling habit:', error);
+            alert('خطا در ثبت عادت');
+            this.checked = !this.checked; 
+        });
+    });
 });
 </script>
 {% else %}

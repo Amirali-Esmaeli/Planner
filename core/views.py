@@ -15,6 +15,7 @@ import jdatetime
 def home(request):
     if request.user.is_authenticated:
         today = timezone.now().date()
+        today_str = timezone.now().date().strftime('%Y-%m-%d')
         goals = Goal.objects.filter(user=request.user).order_by('-start_date')[:5]
         habits = Habit.objects.filter(user=request.user)
         valid_habits = []
@@ -46,6 +47,7 @@ def home(request):
             'tasks': tasks,
             'chart_data': chart_data,
             'categories': categories,
+            'today_str': today_str,
         }
         return render(request, 'core/home.html', context)
     else:
