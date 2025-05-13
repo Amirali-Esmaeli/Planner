@@ -10,6 +10,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from datetime import timedelta
 import jdatetime
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .serializers import HabitSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 # Create your views here.
 def home(request):
@@ -308,24 +313,6 @@ def calendar_events(request):
     return JsonResponse(events, safe=False)
 
 @login_required
-def toggle_habit(request, habit_id):
-    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
-    if request.method == 'POST':
-        today = timezone.now().date().strftime('%Y-%m-%d')
-        done_dates = habit.done_dates or []
-        if today not in done_dates:
-            done_dates.append(today)
-            habit.done_dates = done_dates
-            habit.save()
-            return JsonResponse({'status': 'success', 'message': 'عادت امروز انجام شد'})
-        else:
-            done_dates.remove(today)
-            habit.done_dates = done_dates
-            habit.save()
-            return JsonResponse({'status': 'success', 'message': 'عادت امروز لغو شد'})
-    return JsonResponse({'status': 'error', 'message': 'درخواست نامعتبر'}, status=400)
-
-@login_required
 def history(request):
     today = timezone.now().date()
     habits = Habit.objects.filter(user=request.user)
@@ -368,3 +355,47 @@ def history(request):
         'habit_statuses': habit_statuses,
         'task_statuses': task_statuses,
     })
+
+class HabitViewSet(viewsets.ModelViewSet):
+    queryset = Habit.objects.all()
+    serializer_class = HabitSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        today = timezone.now().date()
+        queryset = Habit.objects.filter(user=self.request.user)
+        valid_habits = []
+        for habit in queryset:
+            created_date = habit.created_at.date()
+            if created_date <= today:
+                if habit.frequency == 'daily':
+                    valid_habits.append(habit.id)
+                elif habit.frequency == 'weekly':
+                    created_weekday = created_date.weekday()
+                    if today.weekday() == created_weekday:
+                        valid_habits.append(habit.id)
+                elif habit.frequency == 'monthly':
+                    created_day = created_date.day
+                    if today.day == created_day:
+                        valid_habits.append(habit.id)
+        return queryset.filter(id__in=valid_habits)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def toggle(self, request, pk=None):
+        habit = self.get_object()
+        today = timezone.now().date().strftime('%Y-%m-%d')
+        done_dates = habit.done_dates or []
+        if today not in done_dates:
+            done_dates.append(today)
+            habit.done_dates = done_dates
+            habit.save()
+            return Response({'status': 'success', 'message': 'عادت امروز انجام شد'})
+        else:
+            done_dates.remove(today)
+            habit.done_dates = done_dates
+            habit.save()
+            return Response({'status': 'success', 'message': 'عادت امروز لغو شد'})
+        
