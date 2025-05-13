@@ -1,7 +1,11 @@
-from django.urls import path
+from django.urls import path,include
 from . import views
+from rest_framework.routers import DefaultRouter
 
 app_name = 'core'
+router = DefaultRouter()
+router.register(r'habits', views.HabitViewSet, basename='habit')
+
 urlpatterns = [
     path('', views.home, name='home'),
     path('signup/', views.signup, name='signup'),
@@ -22,5 +26,5 @@ urlpatterns = [
     path('calendar/', views.calendar, name='calendar'),
     path('calendar/events/', views.calendar_events, name='calendar_events'),
     path('history/', views.history, name='history'),
-    path('habit/toggle/<int:habit_id>/', views.toggle_habit, name='toggle_habit'),
+    path('api/', include(router.urls)),
 ]

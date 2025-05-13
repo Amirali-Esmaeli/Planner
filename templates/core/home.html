@@ -170,7 +170,7 @@ function getCookie(name) {
 document.querySelectorAll('.habit-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
         const habitId = this.getAttribute('data-habit-id');
-        fetch(`/habit/toggle/${habitId}/`, {
+        fetch(`/api/habits/${habitId}/toggle/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
