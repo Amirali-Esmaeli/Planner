@@ -86,6 +86,18 @@
         <div class="col-md-4 mb-4">
             <div class="card p-4 fade-in">
                 <h3 class="mb-3"><i class="fas fa-tasks"></i> وظایف نزدیک</h3>
+                <form method="GET" class="mb-3">
+                <div class="form-group">
+                    <select name="goal" id="goal" class="form-control" onchange="this.form.submit()">
+                        <option value="">همه اهداف</option>
+                        {% for goal in goals %}
+                            <option value="{{ goal.id }}" {% if selected_goal_id == goal.id  %}selected{% endif %}>
+                                {{ goal.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                </form>
                 <div class="mb-3">
                     <select id="priority-filter" class="form-select">
                         <option value="all">همه اولویت ها</option>

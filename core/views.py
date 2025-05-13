@@ -21,13 +21,17 @@ def home(request):
     if request.user.is_authenticated:
         today = timezone.now().date()
         today_str = timezone.now().date().strftime('%Y-%m-%d')
+
         selected_category_id = request.GET.get('category')
-        goals = Goal.objects.filter(user=request.user)
+        goals = Goal.objects.filter(
+            user=request.user,
+            ).order_by('end_date')
         if selected_category_id:
             goals = goals.filter(categories__id=selected_category_id)
             selected_category_id = int(selected_category_id) 
         else:
             selected_category_id = None
+
         habits = Habit.objects.filter(user=request.user)
         valid_habits = []
         for habit in habits:
@@ -43,10 +47,15 @@ def home(request):
                     created_day = created_date.day
                     if today.day == created_day:
                         valid_habits.append(habit)
+
+        selected_goal_id = request.GET.get('goal')
         tasks = Task.objects.filter(
             user=request.user,
             due_date__gte=timezone.now().date(),
-            status='pending').order_by('due_date')[:5]
+            status='pending').order_by('due_date')
+        if selected_goal_id:
+            tasks = tasks.filter(goal_id=selected_goal_id)
+            selected_goal_id = int(selected_goal_id) 
         chart_data={
             'labels':[goal.title for goal in goals],
             'data':[goal.progress for goal in goals],
@@ -60,6 +69,7 @@ def home(request):
             'categories': categories,
             'today_str': today_str,
             'selected_category_id': selected_category_id,
+            'selected_goal_id': selected_goal_id
         }
         return render(request, 'core/home.html', context)
     else:
