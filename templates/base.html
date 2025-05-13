@@ -14,6 +14,9 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:home' %}"<i class="fas fa-clipboard-list"></i>>پلنر توسعه فردی</a>
+            <div class="position-absolute start-50 translate-middle-x text-white text-center">
+                {{ quote.content }}
+            </div>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}

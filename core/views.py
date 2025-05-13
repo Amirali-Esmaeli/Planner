@@ -15,12 +15,24 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import HabitSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+import requests
 
 # Create your views here.
 def home(request):
     if request.user.is_authenticated:
         today = timezone.now().date()
         today_str = timezone.now().date().strftime('%Y-%m-%d')
+
+        quote = None
+        try:
+            response = requests.get('https://api.adviceslip.com/advice')
+            if response.status_code == 200:
+                data = response.json()
+                quote = {
+                    'content': data['slip']['advice'],
+                }
+        except requests.RequestException:
+            quote = {'content': 'امروز خودت رو به چالش بکش'}
 
         selected_category_id = request.GET.get('category')
         goals = Goal.objects.filter(
@@ -69,7 +81,8 @@ def home(request):
             'categories': categories,
             'today_str': today_str,
             'selected_category_id': selected_category_id,
-            'selected_goal_id': selected_goal_id
+            'selected_goal_id': selected_goal_id,
+            'quote': quote,
         }
         return render(request, 'core/home.html', context)
     else:
