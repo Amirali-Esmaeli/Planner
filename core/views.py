@@ -16,6 +16,7 @@ from .serializers import HabitSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 import requests
+from django.core.paginator import Paginator
 
 # Create your views here.
 def home(request):
@@ -41,8 +42,9 @@ def home(request):
         if selected_category_id:
             goals = goals.filter(categories__id=selected_category_id)
             selected_category_id = int(selected_category_id) 
-        else:
-            selected_category_id = None
+        goals_paginator = Paginator(goals, 3)
+        goals_page = request.GET.get('goals_page', 1)
+        goals = goals_paginator.get_page(goals_page)
 
         habits = Habit.objects.filter(user=request.user)
         valid_habits = []
