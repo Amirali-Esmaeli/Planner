@@ -153,6 +153,21 @@
                         </li>
                     {% endfor %}
                 </ul>
+                <ul class="pagination justify-content-center mt-3">
+                    {% if tasks.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?tasks_page={{ tasks.previous_page_number }}{% if selected_goal_id %}&goal={{ selected_goal_id }}{% endif %}">&laquo; قبلی</a>
+                        </li>
+                    {% endif %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ tasks.number }}</span>
+                        </li>
+                    {% if tasks.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?tasks_page={{ tasks.next_page_number}}{% if selected_goal_id %}&goal={{ selected_goal_id}}{% endif %}">&raquo; بعدی</a>
+                        </li>
+                    {% endif %}
+                </ul>
                 {% else %}
                 <p>وظیفه‌ای ثبت نشده است</p>
                 {% endif %}

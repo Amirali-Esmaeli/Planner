@@ -73,6 +73,10 @@ def home(request):
         if selected_goal_id:
             tasks = tasks.filter(goal_id=selected_goal_id)
             selected_goal_id = int(selected_goal_id) 
+        tasks_paginator = Paginator(tasks, 3)
+        tasks_page = request.GET.get('tasks_page', 1)
+        tasks = tasks_paginator.get_page(tasks_page)
+
         chart_data={
             'labels':[goal.title for goal in goals],
             'data':[goal.progress for goal in goals],
