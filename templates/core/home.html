@@ -92,6 +92,21 @@
                     </li>
                     {% endfor %}
                 </ul>
+                <ul class="pagination justify-content-center mt-3">
+                    {% if habits.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?habits_page={{ habits.previous_page_number }}">&laquo; قبلی</a>
+                        </li>
+                    {% endif %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ habits.number }}</span>
+                        </li>
+                    {% if habits.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?habits_page={{ habits.next_page_number}}">&raquo; بعدی</a>
+                        </li>
+                    {% endif %}
+                </ul>
                 {% else %}
                 <p>عادتی برای امروز ثبت نشده است</p>
                 {% endif %}

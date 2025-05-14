@@ -46,9 +46,9 @@ def home(request):
         goals_page = request.GET.get('goals_page', 1)
         goals = goals_paginator.get_page(goals_page)
 
-        habits = Habit.objects.filter(user=request.user)
+        habits_list = Habit.objects.filter(user=request.user)
         valid_habits = []
-        for habit in habits:
+        for habit in habits_list:
             created_date = habit.created_at.date()
             if created_date <= today:
                 if habit.frequency == 'daily':
@@ -61,6 +61,9 @@ def home(request):
                     created_day = created_date.day
                     if today.day == created_day:
                         valid_habits.append(habit)
+        habits_paginator = Paginator(valid_habits, 3)
+        habits_page = request.GET.get('habits_page', 1)
+        habits = habits_paginator.get_page(habits_page)
 
         selected_goal_id = request.GET.get('goal')
         tasks = Task.objects.filter(
@@ -77,7 +80,7 @@ def home(request):
         categories = Category.objects.filter(user=request.user)
         context={
             'goals': goals,
-            'habits': valid_habits,
+            'habits': habits,
             'tasks': tasks,
             'chart_data': chart_data,
             'categories': categories,
