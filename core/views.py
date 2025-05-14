@@ -82,6 +82,10 @@ def home(request):
             'data':[goal.progress for goal in goals],
         }
         categories = Category.objects.filter(user=request.user)
+        categories_paginator = Paginator(categories, 3)
+        categories_page = request.GET.get('categories_page', 1)
+        categories = categories_paginator.get_page(categories_page)
+        
         context={
             'goals': goals,
             'habits': habits,
