@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-g(@)oplszmwo9#oa9lt=()!dzrk@ljm7n3_zm)y3m=5q-!(%(4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['amiraliesmaili.pythonanywhere.com', '127.0.0.1']
+ALLOWED_HOSTS = ['amiraliesmaili.pythonanywhere.com', '127.0.0.1', '*']
 
 
 # Application definition
@@ -76,14 +77,9 @@ WSGI_APPLICATION = 'planner.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'planner',
-        'USER': 'root',
-        'PASSWORD': '2121',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    'default': dj_database_url.config(
+        default='mysql://root:2121@localhost:3306/planner'
+    )
 }
 
 
