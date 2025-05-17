@@ -26,7 +26,7 @@
             </form>
                 {% if goals %}
                 <ul class="list-group">
-                    {% for goal in goals %}
+                    {% for goal in goals_page %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             {{goal.title}} - %{{goal.progress}}
@@ -39,17 +39,17 @@
                     {% endfor %}
                 </ul>
                 <ul class="pagination justify-content-center mt-3">
-                        {% if goals.has_previous %}
+                        {% if goals_page.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?goals_page={{ goals.previous_page_number }}{% if selected_category_id %}&category={{ selected_category_id }}{% endif %}">&laquo; قبلی</a>
+                                <a class="page-link" href="?goals_page={{ goals_page.previous_page_number }}{% if selected_category_id %}&category={{ selected_category_id }}{% endif %}">&laquo; قبلی</a>
                             </li>
                         {% endif %}
                         <li class="page-item active">
-                            <span class="page-link">{{ goals.number }}</span>
+                            <span class="page-link">{{ goals_page.number }}</span>
                         </li>
-                        {% if goals.has_next %}
+                        {% if goals_page.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?goals_page={{ goals.next_page_number}}{% if selected_category_id %}&category={{ selected_category_id}}{% endif %}">&raquo; بعدی</a>
+                                <a class="page-link" href="?goals_page={{ goals_page.next_page_number}}{% if selected_category_id %}&category={{ selected_category_id}}{% endif %}">&raquo; بعدی</a>
                             </li>
                         {% endif %}
                 </ul>
@@ -63,7 +63,7 @@
                 {% if categories %}
                 <h5 class="mt-3">دسته بندی ها</h5>
                 <ul class="list-group">
-                    {% for category in categories %}
+                    {% for category in categories_page %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         {{category.name}}
                         <a href="{% url 'core:category_delete' category.id %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
@@ -71,17 +71,17 @@
                     {% endfor %}
                 </ul>
                 <ul class="pagination justify-content-center mt-3">
-                    {% if categories.has_previous %}
+                    {% if categories_page.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?categories_page={{ categories.previous_page_number }}">&laquo; قبلی</a>
+                            <a class="page-link" href="?categories_page={{ categories_page.previous_page_number }}">&laquo; قبلی</a>
                         </li>
                     {% endif %}
                         <li class="page-item active">
-                            <span class="page-link">{{ categories.number }}</span>
+                            <span class="page-link">{{ categories_page.number }}</span>
                         </li>
-                    {% if categories.has_next %}
+                    {% if categories_page.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?categories_page={{ categories.next_page_number}}">&raquo; بعدی</a>
+                            <a class="page-link" href="?categories_page={{ categories_page.next_page_number}}">&raquo; بعدی</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -153,7 +153,7 @@
                 </div>
                 {% if tasks %}
                 <ul class="list-group" id="task-list">
-                    {% for task in tasks %}
+                    {% for task in tasks_page %}
                         <li class="list-group-item task-item d-flex justify-content-between align-items-center" data-priority="{{ task.priority }}">
                         <div dir="rtl">
                             {{ task.title }} - مهلت: {{ task.due_date|date:"Y/m/d" }}
@@ -169,17 +169,17 @@
                     {% endfor %}
                 </ul>
                 <ul class="pagination justify-content-center mt-3">
-                    {% if tasks.has_previous %}
+                    {% if tasks_page.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?tasks_page={{ tasks.previous_page_number }}{% if selected_goal_id %}&goal={{ selected_goal_id }}{% endif %}">&laquo; قبلی</a>
+                            <a class="page-link" href="?tasks_page={{ tasks_page.previous_page_number }}{% if selected_goal_id %}&goal={{ selected_goal_id }}{% endif %}">&laquo; قبلی</a>
                         </li>
                     {% endif %}
                         <li class="page-item active">
-                            <span class="page-link">{{ tasks.number }}</span>
+                            <span class="page-link">{{ tasks_page.number }}</span>
                         </li>
-                    {% if tasks.has_next %}
+                    {% if tasks_page.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?tasks_page={{ tasks.next_page_number}}{% if selected_goal_id %}&goal={{ selected_goal_id}}{% endif %}">&raquo; بعدی</a>
+                            <a class="page-link" href="?tasks_page={{ tasks_page.next_page_number}}{% if selected_goal_id %}&goal={{ selected_goal_id}}{% endif %}">&raquo; بعدی</a>
                         </li>
                     {% endif %}
                 </ul>

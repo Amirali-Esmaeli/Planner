@@ -43,8 +43,8 @@ def home(request):
             goals = goals.filter(categories__id=selected_category_id)
             selected_category_id = int(selected_category_id) 
         goals_paginator = Paginator(goals, 3)
-        goals_page = request.GET.get('goals_page', 1)
-        goals = goals_paginator.get_page(goals_page)
+        goals_page_number = request.GET.get('goals_page', 1)
+        goals_page = goals_paginator.get_page(goals_page_number)
 
         habits_list = Habit.objects.filter(user=request.user)
         valid_habits = []
@@ -74,8 +74,8 @@ def home(request):
             tasks = tasks.filter(goal_id=selected_goal_id)
             selected_goal_id = int(selected_goal_id) 
         tasks_paginator = Paginator(tasks, 3)
-        tasks_page = request.GET.get('tasks_page', 1)
-        tasks = tasks_paginator.get_page(tasks_page)
+        tasks_page_number = request.GET.get('tasks_page', 1)
+        tasks_page = tasks_paginator.get_page(tasks_page_number)
 
         chart_data={
             'labels':[goal.title for goal in goals],
@@ -83,15 +83,18 @@ def home(request):
         }
         categories = Category.objects.filter(user=request.user)
         categories_paginator = Paginator(categories, 3)
-        categories_page = request.GET.get('categories_page', 1)
-        categories = categories_paginator.get_page(categories_page)
+        categories_page_number = request.GET.get('categories_page', 1)
+        categories_page = categories_paginator.get_page(categories_page_number)
         
         context={
             'goals': goals,
+            'goals_page': goals_page,
             'habits': habits,
             'tasks': tasks,
+            'tasks_page': tasks_page,
             'chart_data': chart_data,
             'categories': categories,
+            'categories_page': categories_page,
             'today_str': today_str,
             'selected_category_id': selected_category_id,
             'selected_goal_id': selected_goal_id,
